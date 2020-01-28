@@ -1,2 +1,4 @@
 trash/
 *.txt
+*.pyc
+test*.py
