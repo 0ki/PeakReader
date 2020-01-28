@@ -10,14 +10,14 @@ if sys.version_info[0] <= 2: #dirty python2 hack to support utf8-sig
 	
 class OverwriteReader:
 	
-	def __init__(self,csv,separator=';'):
+	def __init__(self,csv,separator=';',limit=-1):
 		self.index = -1
 		tmp = []
 		self.data=[]
 		for line in csv:
 			tmp2=line.split(separator)
 			for i in range(len(tmp2)):
-				if tmp2[i]!="":
+				if tmp2[i]!="" or (limit>0 and i>limit):
 					while i >= len(tmp):
 						tmp.append("")
 					tmp[i]=tmp2[i]
@@ -311,11 +311,10 @@ class PeakRoute(Peak):
 		#"timetables",
 		#"timetables_by_stops",
 		#"timetables_by_vehicles",
+		"realstreets",
 		"weekday_list",
 		"special",
-		"id",
-		
-		
+		"id",		
 	]
 	
 	def listinit(self,rt):
@@ -347,9 +346,8 @@ class PeakRoute(Peak):
 		
 		self.timetables=rt[14]	
 		
-		
 		# expressbuss, if starts with 3
-		if self.transport.lower() == 'minibus' and len(self.number)==3 and self.number[0]>='3':
+		if self.transport.lower() == 'minibus' and len(self.number)==3 and self.number[0]>='3' and self.city.lower() == 'riga':
 			self.transport = 'expressbus'
 		
 		self.id = self.transport+"/"+self.number+"/"+self.direction
@@ -436,7 +434,7 @@ class PeakWebReader(Peak):
 			except:
 				print ("Warning! Wrong line count in routes.") 
 
-		for route in OverwriteReader(routesjoined):
+		for route in OverwriteReader(routesjoined,limit=11):
 			rt=PeakRoute(route,header=routesin[0])
 			self.subroutes[rt.id]=rt
 
@@ -474,6 +472,34 @@ class PeakWebReader(Peak):
 	def SortByDeparture(self,fullresult):
 		return sorted(fullresult, key = lambda i: 
 			("99" if (i['departure'].find('(+1)')!=-1) else "0")+" "+i['departure'])
+			
+	def PopulateRouteStreets(self):
+
+		for ro in self.subroutes:
+			realstreets=[]
+			thisroute=self.subroutes[ro]
+			striter = thisroute.streets.split(",")
+			stopcopy=thisroute.stops[:]
+			striter = striter + ['']*(len(stopcopy)-len([x for x in striter if x=='']))
+			for i in range(len(striter)):
+				if striter[i] == '':
+					try:
+						striter[i]=self.stops[stopcopy[0]].street
+						stopcopy.pop(0)
+					except:
+						striter[i]=""
+					
+			for st in striter:
+				if st == '0' or st=='' or st is None:
+					continue
+				if len(realstreets)==0 or realstreets[-1]!=st:
+					realstreets.append(st)
+			self.subroutes[ro].realstreets=",".join(realstreets)
+		
+	
+	def PopulateAll(self):
+		self.PopulateRouteStreets()
+		
 
 
 class PeakWebFileReader(PeakWebReader):

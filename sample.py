@@ -2,14 +2,16 @@
 
 from PeakWeb import PeakWebFileReader
 
-RSRMS = PeakWebFileReader("routes.txt","stops.txt")
-RSRMS.addFile(routes="routes-rms.txt",stops="stops-rms.txt")
+RSRMS = PeakWebFileReader("routes-rms.txt","stops-rms.txt")
+RSRMS.addFile(routes="routes.txt",stops="stops.txt")
 
 departues_at_stop_8002=RSRMS.SortByDeparture(RSRMS.FilterByDate(RSRMS.GetDeparturesAtStop('8002')))
 
+RSRMS.PopulateAll()
 #print (RSRMS.stops)
+
+print (RSRMS.subroutes["trol/27/d2-b"])
 #print (RSRMS.subroutes)
-print (RSRMS.subroutes["expressbus/346/a-b"])
 print (RSRMS.subroutes["nightbus/N1/a-b"] )
 
 for stop in RSRMS.subroutes["nightbus/N1/a-b"].timetables_by_stops:
