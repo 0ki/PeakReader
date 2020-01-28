@@ -14,6 +14,7 @@ Usage example, also see sample.py.
 ```
 from PeakWeb import PeakWebFileReader
 pw = PeakWebFileReader("routes.txt","stops.txt")
+print (pw.GetRoutes())
 print (pw.stops)
 ```
 
