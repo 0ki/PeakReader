@@ -407,6 +407,7 @@ class PeakWebReader(Peak):
 
 	def __init__(self,routesin,stopsin):
 		self.stops={}
+		self.routes={}
 		self.subroutes={}
 		self.specialdates={}
 		self.addStops(stopsin)
@@ -437,6 +438,11 @@ class PeakWebReader(Peak):
 		for route in OverwriteReader(routesjoined,limit=11):
 			rt=PeakRoute(route,header=routesin[0])
 			self.subroutes[rt.id]=rt
+			try:
+				self.routes[rt.transport+"/"+rt.number]
+			except:
+				self.routes[rt.transport+"/"+rt.number]=[]
+			self.routes[rt.transport+"/"+rt.number].append(rt.id)
 
 	
 	def FindRoutesAtStop(self,stopid):
@@ -445,7 +451,29 @@ class PeakWebReader(Peak):
 			if stopid in self.subroutes[r].stops:
 				ra.append(self.subroutes[r].id)
 		return ra
+	
+	
+	def GetRoutes(self,base="",every=False):
+		if(base.count('/')==2): # 3 parts
+			if base in self.subroutes: 
+				return [base]
+			else:
+				return []
 		
+		if(base.count('/')==1): #2 parts
+			every=True
+			
+		if (every):
+			if base == "": #0 parts
+				return self.subroutes
+			return [i for i in self.subroutes if self.subroutes[i].id.find(base+"/") == 0]  #1 and 2 parts
+		else:
+			if(base == ""): #0 parts
+				return list(set([self.subroutes[i].transport for i in self.subroutes ]))
+			else:
+				return list(set([base+"/"+self.subroutes[i].number for i in self.subroutes if self.subroutes[i].transport==base])) #1 parts
+			
+			
 	def GetDeparturesForRouteAtStop(self,routeid,stopid):
 		ra=[]
 		for r in self.subroutes[routeid].timetables_by_stops:

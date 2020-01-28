@@ -10,14 +10,16 @@ departues_at_stop_8002=RSRMS.SortByDeparture(RSRMS.FilterByDate(RSRMS.GetDepartu
 RSRMS.PopulateAll()
 #print (RSRMS.stops)
 
-print (RSRMS.subroutes["trol/27/d2-b"])
-#print (RSRMS.subroutes)
+print (RSRMS.GetRoutes())
+print (RSRMS.GetRoutes("tram",True))
+
+#print (RSRMS.subroutes["trol/27/d2-b"])
 print (RSRMS.subroutes["nightbus/N1/a-b"] )
 
 for stop in RSRMS.subroutes["nightbus/N1/a-b"].timetables_by_stops:
 	print ([onestop["departure"]+"/"+onestop["tag"] 
-		for onestop in stop
-			if onestop["weekdays"] == RSRMS.subroutes["nightbus/N1/a-b"].weekday_list[0]], 
-	RSRMS.stops[stop[0]["stop"]].name)
+			for onestop in stop
+				if onestop["weekdays"] == RSRMS.subroutes["nightbus/N1/a-b"].weekday_list[0]], 
+		RSRMS.stops[stop[0]["stop"]].name)
 
 
