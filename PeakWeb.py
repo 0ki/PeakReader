@@ -7,6 +7,7 @@ import sys
 if sys.version_info[0] <= 2: #dirty python2 hack to support utf8-sig
 	from io import open
 	
+	
 class OverwriteReader:
 	
 	def __init__(self,csv,separator=';'):
@@ -37,6 +38,7 @@ class OverwriteReader:
 		
 	def next(self): # python 2 compat
 		return self.__next__()
+
 
 class Peak:
 
@@ -156,6 +158,7 @@ class Peak:
 	def listinit(self,stopdata):
 		raise NotImplementedError
 
+
 class PeakSpecialDates(Peak):
 	
 	_mapping = [
@@ -171,6 +174,7 @@ class PeakSpecialDates(Peak):
 
 		for n in range(len(PeakSpecialDates._mapping)):
 			setattr(self,PeakSpecialDates._mapping[n],rt[n])
+			
 			
 class PeakStop(Peak):
 	
@@ -213,6 +217,7 @@ class PeakStop(Peak):
 				
 		try: self.coord_long=int(self.coord_long)/100000
 		except: pass
+			
 			
 class PeakRoute(Peak):
 
@@ -352,8 +357,8 @@ class PeakRoute(Peak):
 
 		self.timetables=self.timeConv(self.timetables)
 
-		# night bus parse to move to proper weekdays
-		if self.transport.lower() == 'nightbus' and self.weekdays =='67':
+		# night bus parse to move to proper weekdays for Riga
+		if self.transport.lower() == 'nightbus' and self.weekdays =='67' and self.city.lower() == 'riga':
 			self.weekdays = '56'
 			self.timetables["weekdays"] = ['56' if x == '67' else x for x in self.timetables["weekdays"] ]
 		
@@ -398,6 +403,7 @@ class PeakRoute(Peak):
 				n += 1
 			self.timetables_by_stops.append(stopval)
 			d += vehcount
+
 
 class PeakWebReader(Peak):
 
@@ -468,7 +474,8 @@ class PeakWebReader(Peak):
 	def SortByDeparture(self,fullresult):
 		return sorted(fullresult, key = lambda i: 
 			("99" if (i['departure'].find('(+1)')!=-1) else "0")+" "+i['departure'])
-	
+
+
 class PeakWebFileReader(PeakWebReader):
 
 	def __init__(self,froutes,fstops):
