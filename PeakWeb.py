@@ -429,7 +429,7 @@ class PeakWebReader(Peak):
 				self.specialdates=PeakSpecialDates(OverwriteReader([i])[0])
 				break
 		
-		for i in range(2 if routesin[1][0] == ';' else 1,len(routesin),2):
+		for i in range(3 if routesin[2][0] == ';' else 2 if routesin[1][0] == ';' else 1,len(routesin),2):
 			try:
 				routesjoined.append(routesin[i]+routesin[i+1])
 			except:
